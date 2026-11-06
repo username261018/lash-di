@@ -98,7 +98,7 @@ function reveal(){
  const sweep=()=>{
   all.forEach(el=>{
    const r=el.getBoundingClientRect();
-   if(r.top<innerHeight*.98&&r.bottom>0){el.classList.add('in');if(el.getAttribute('data-rv')==='curtain'){setTimeout(()=>el.classList.add('done'),1100)}};
+   if(r.top<innerHeight&&r.bottom>0){el.classList.add('in');if(el.getAttribute('data-rv')==='curtain'){setTimeout(()=>el.classList.add('done'),1100)}};
   });
   $$('[data-rv="curtain"]').forEach(el=>{
    const r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)el.classList.add('in');
@@ -213,7 +213,7 @@ function lightAndProgress(){
   if(lit&&lit.tagName!=='DIV'&&!reduce.matches){const r=lit.getBoundingClientRect();lit.style.opacity=.25+.75*clamp((innerHeight*.85-r.top)/(innerHeight*.5))}
   // Contact expansion belongs to scroll, not an asynchronous reveal gate.
   const panel=$('.contact-panel');
-  if(panel&&!reduce.matches){const r=panel.getBoundingClientRect();panel.style.setProperty('--fx',48*clamp((r.top/innerHeight-.1)/.3) + 'px')}
+  if(panel&&!reduce.matches){const r=panel.getBoundingClientRect();panel.style.setProperty('--fx',48*clamp((r.top/innerHeight-.4)/.5) + 'px')}
  };
  addEventListener('scroll',update,{passive:true});update();
  if(spot&&matchMedia('(hover:hover) and (pointer:fine)').matches&&!reduce.matches)addEventListener('pointermove',e=>spot.style.transform=`translate(${e.clientX-innerWidth/2}px,${e.clientY-innerHeight/2}px)`,{passive:true});
