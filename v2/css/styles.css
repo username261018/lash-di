@@ -222,9 +222,9 @@ html:not(.m-on):not(.m-reduced):not(.m-ready) .top{background:var(--paper)}
 @media(min-width:900px){
  .grid-page .hero{padding-block:43px}.grid-page .hero-grid{grid-template-columns:1fr 1.45fr 1fr;gap:28px 35px;align-items:center}.grid-page .hero-about{grid-column:1;grid-row:1;font-size:12px;line-height:1.8}.grid-page .hero-about .eyebrow{font-size:10px}.grid-page .hero-work{grid-column:2;grid-row:1;margin-inline:0}.grid-page .hero-work figure{width:75%;max-width:340px}.grid-page .hero-directions{grid-column:3;grid-row:1}.grid-page .hero-directions li{font-size:11px;padding:12px 0}.grid-page .title-small{font-size:25px;margin-top:12px}.grid-page .hero-word{font-size:clamp(160px,20vw,250px);top:10%}.grid-page .hero-bottom{grid-column:1/-1;grid-row:2;gap:24px}.grid-page .hero-bottom p{font-size:11px;flex:1}
  .grid-page .service-stack{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-page .service-item article{padding:25px 22px}.grid-page .service-item h3{font-size:24px;line-height:1.2;min-height:58px}.grid-page .service-item p{font-size:11px}
- .grid-page .works-grid{position:relative}.grid-page .works-grid .photo-list{gap:32px 22px}.grid-page .works-grid .photo-list li:nth-child(even){transform:translateY(var(--drift,0))}.grid-page .works-grid .photo-list li:nth-child(4n+2)::after,.grid-page .works-grid .photo-list li:nth-child(4n+3)::after{content:"";position:absolute;border:1px solid #a2786744;inset:5px;pointer-events:none}
+ .grid-page .works-grid{position:relative}.grid-page .works-grid .photo-list{gap:32px 22px}.grid-page .works-grid .photo-list li:nth-child(even){--drift:0}.grid-page .works-grid .photo-list li:nth-child(4n+2)::after,.grid-page .works-grid .photo-list li:nth-child(4n+3)::after{content:"";position:absolute;border:1px solid #a2786744;inset:5px;pointer-events:none}
  @supports (animation-timeline:view()){
-  .grid-page .works-grid .photo-list li:nth-child(even){translate:0 0;animation:grid-drift linear both;animation-timeline:view();animation-range:entry 0 exit 100%}
+  .grid-page .works-grid .photo-list li:nth-child(even):not(:nth-last-child(-n+6)){translate:0 0;animation:grid-drift linear both;animation-timeline:view();animation-range:entry 0 exit 100%}
   @keyframes grid-drift{0%{translate:0 -14px}100%{translate:0 14px}}
  }
  .grid-page .works-grid .photo-list img{min-height:0}.grid-page .review-card{min-height:250px;padding:28px}.grid-page .review-card p{font-size:23px}
@@ -257,9 +257,11 @@ html.m-on[data-motion="active"] .grid-page .reviews-motion{height:var(--lane-scr
 
 html.m-on[data-motion="active"] .grid-page [data-lane="reviews"][data-ready="true"] .review-list{flex-shrink:0;max-width:none}
 
+/* Keep end-of-gallery rows in their normal visible flow: view-timeline transformed items may move beyond a clipping section. */
+@media(max-width:1200px){.grid-page .works-grid{position:static}.grid-page .works-grid .photo-list li:nth-child(even):nth-last-child(-n+6){transform:none!important;translate:0!important;animation:none!important}}
 /* T4 reviews are one desktop lane, not a board service stack. */
 @media(min-width:900px) and (min-aspect-ratio:6/5){
-html.m-on[data-motion="active"] .grid-page .service-stack{position:static;height:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+html.m-on[data-motion="active"] .grid-page .service-stack{position:static!important;height:auto!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
 html.m-on[data-motion="active"] .grid-page .service-item{position:relative;width:auto;top:auto;translate:none!important}
 html.m-on[data-motion="active"] .grid-page .service-item article{height:auto;min-height:170px}
 html.m-on[data-motion="active"] .grid-page [data-lane="reviews"][data-ready="true"]{height:var(--lane-scroll,1085px)}
@@ -269,3 +271,9 @@ html.m-on[data-motion="active"] .grid-page [data-lane="reviews"][data-ready="tru
 /* Last visible-item check: pin first only when the library has initialized. */
 html.m-ready.board .service-stack{min-height:0}
 html.m-ready.grid-page .service-stack{min-height:0}
+
+/* T4 needs the long normal-flow gallery measured before the review lane, not a colliding absolutely positioned preview. */
+@media(min-width:900px){.grid-page .works-grid{position:static}}
+
+html.m-ready.grid-page .works-grid .photo-list li{translate:0!important;animation:none!important}
+html.m-ready.grid-page .works-grid .photo-list li:nth-child(even):not(:nth-last-child(-n+6))>figure{transform:rotate(-0.7deg);translate:0 var(--drift,0);transition:translate 1ms linear}

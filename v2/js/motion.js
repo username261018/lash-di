@@ -89,7 +89,7 @@ function watch(elements){
  });
 }
 const io=typeof IntersectionObserver==='function'?new IntersectionObserver(entries=>entries.forEach(entry=>{
- if(entry.isIntersecting){entry.target.classList.add('in');entry.target.addEventListener('transitionend',e=>{if(e.propertyName==='clip-path')entry.target.classList.add('done')});io?.unobserve(entry.target)}
+ if(entry.isIntersecting){entry.target.classList.add('in');if(entry.target.dataset.rv==='curtain')setTimeout(()=>entry.target.classList.add('done'),1100);io?.unobserve(entry.target)}
 }),{rootMargin:'0px 0px 100px 0px',threshold:0}):null;
 function reveal(){
  split();
