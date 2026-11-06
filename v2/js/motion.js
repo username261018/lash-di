@@ -98,7 +98,7 @@ function reveal(){
  const sweep=()=>{
   all.forEach(el=>{
    const r=el.getBoundingClientRect();
-   if(r.top<innerHeight*.96&&r.bottom>0){el.classList.add('in');if(el.getAttribute('data-rv')==='curtain'){setTimeout(()=>el.classList.add('done'),1100)}};
+   if(r.top<innerHeight*.98&&r.bottom>0){el.classList.add('in');if(el.getAttribute('data-rv')==='curtain'){setTimeout(()=>el.classList.add('done'),1100)}};
   });
   $$('[data-rv="curtain"]').forEach(el=>{
    const r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)el.classList.add('in');
