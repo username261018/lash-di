@@ -94,22 +94,53 @@ const io=typeof IntersectionObserver==='function'?new IntersectionObserver(entri
 function reveal(){
  split();
  const all=$$('[data-rv],.section-title');
- // No short item or an entire long list is allowed to wait for a strict root-margin trigger.
- const sweep=()=>{
-  all.forEach(el=>{
-   const r=el.getBoundingClientRect();
-   if(r.top<innerHeight&&r.bottom>0){el.classList.add('in');if(el.getAttribute('data-rv')==='curtain'){setTimeout(()=>el.classList.add('done'),1100)}};
-  });
-  $$('[data-rv="curtain"]').forEach(el=>{
-   const r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)el.classList.add('in');
+ const commit=el=>{
+  el.classList.add('in');io?.unobserve(el);
+  if(el.dataset.rv==='curtain')setTimeout(()=>el.classList.add('done'),1100);
+ };
+ // Keep each target's normal-flow document position. A translated text word
+ // would otherwise wait on its own entrance, and observed wrappers must not be
+ // disconnected while their lazy images are still changing the page geometry.
+ const targetTops=()=>all.map(el=>({el,top:el.getBoundingClientRect().top+scrollY}));
+ let positions=targetTops();
+ const measure=()=>{
+  const previous=new Map(positions.map(({el,top})=>[el,top]));
+  // Above-gallery image loads only move later targets down; retain the earliest
+  // threshold so an expanded document moves its end but never strands a reveal.
+  positions=all.map(el=>{
+   const top=el.getBoundingClientRect().top+scrollY,old=previous.get(el);
+   return {el,top:old===undefined?top:Math.min(old,top)};
   });
  };
- sweep();addEventListener('scroll',sweep,{passive:true});addEventListener('resize',sweep);
- addEventListener('beforeprint',()=>all.forEach(el=>el.classList.add('in')));
- addEventListener('hashchange',()=>{sweep();setTimeout(sweep,300)});
- let ticking=false;
- addEventListener('load',()=>{if(ticking)return;ticking=true;requestAnimationFrame(()=>{sweep();ticking=false})},{once:true});
- new ResizeObserver(()=>sweep()).observe($('main'));
+const complete=()=>{
+  all.forEach(commit);
+  root.dataset.revealComplete='true';
+ };
+ let pending=false;
+ const sweep=()=>{
+  if(pending)return;
+  pending=true;
+  requestAnimationFrame(()=>{
+   pending=false;
+   const readBottom=scrollY+innerHeight;
+   // Compare against normal-flow positions, not the word's translated box.
+   // The subsequent viewport check preserves reveal timing in long sections.
+   positions.forEach(({el,top})=>{
+    const r=el.getBoundingClientRect();
+    if(top<=readBottom+60&&r.top<innerHeight+60&&r.bottom>0)commit(el);
+   });
+   // Reaching the contacts boundary is a second, independent page-end guard:
+   // image loading can raise the true page bottom between scroll and its RAF.
+   const last=$('main section:last-of-type'),lastTop=positions.at(-1)?.top||0;
+   const atBottom=readBottom>=document.documentElement.scrollHeight-2;
+   if(atBottom||(last&&readBottom>=Math.min(last.getBoundingClientRect().top+scrollY,lastTop+40)-160))complete();
+  });
+ };
+ sweep();addEventListener('scroll',sweep,{passive:true});
+ addEventListener('resize',measure);
+ addEventListener('beforeprint',complete);
+ addEventListener('hashchange',sweep);
+ new ResizeObserver(()=>{measure();sweep()}).observe($('main'));
  tilt();
 }
 function stack(){
